@@ -28,7 +28,7 @@ export function meta({ loaderData }: Route.MetaArgs) {
   const t = loaderData?.track;
   return pageMeta({
     title: `${t?.label ?? "轨道"} · 前沿榜`,
-    description: t ? `${t.label}轨道近一年收录 ${t.count} 篇文献，其中精选 ${t.selectedCount} 篇、精读 ${t.deepReadCount} 篇。` : undefined,
+    description: t ? `${t.label}轨道近五年收录 ${t.count} 篇文献（期刊影响因子大于 10），其中精选 ${t.selectedCount} 篇、精读 ${t.deepReadCount} 篇。` : undefined,
     path: `/track/${t?.key ?? ""}`,
   });
 }
@@ -71,7 +71,7 @@ export default function TrackPage() {
         <div>
           <h1 className="text-[24px] font-bold leading-[1.3] tracking-[-0.01em] text-ink lg:text-[26px]">{track.label}</h1>
           <p className="mt-1.5 text-[13.5px] text-ink-3">
-            近一年收录 {track.count} 篇 · 精选 {track.selectedCount} 篇 · 精读 {track.deepReadCount} 篇 · 按期刊质量加权排序
+            近五年收录 {track.count} 篇（期刊影响因子大于 10） · 精选 {track.selectedCount} 篇 · 精读 {track.deepReadCount} 篇 · 按期刊质量加权排序
           </p>
         </div>
         <a href="/hot" className="text-[12.5px] text-ink-4 transition-colors hover:text-ink-2">
@@ -81,7 +81,7 @@ export default function TrackPage() {
 
       {track.papers.length === 0 ? (
         <div className="card rounded-sheet mx-4 sm:mx-6">
-          <p className="p-6 text-center text-[13.5px] text-ink-4">该轨道近一年暂无收录。</p>
+          <p className="p-6 text-center text-[13.5px] text-ink-4">该轨道近五年暂无符合入选线的收录。</p>
         </div>
       ) : (
         <ol className="card mx-4 divide-y divide-line-soft overflow-hidden sm:mx-6">

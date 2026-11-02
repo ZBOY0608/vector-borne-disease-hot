@@ -300,11 +300,11 @@ export interface TrackHeat {
   key: string | null;
   label: string;
   count: number;
-  /** How many of the year's items cleared the selection line. */
+  /** How many of the board's items cleared the selection line. */
   selectedCount: number;
-  /** How many of the year's items carry a generated deep reading. */
+  /** How many of the board's items carry a generated deep reading. */
   deepReadCount: number;
-  /** The year's paper in the highest-impact journal (by the operator's metric table), tie by score. */
+  /** The board's paper in the highest-impact journal (by the operator's metric table), tie by score. */
   top: { itemId: string; title: string; journal: string | null; quartile: string | null; impactFactor: string | null } | null;
 }
 

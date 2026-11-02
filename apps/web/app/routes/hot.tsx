@@ -25,7 +25,7 @@ export async function loader({ request }: { request: Request }) {
 export function meta() {
   return pageMeta({
     title: withSubject("前沿榜"),
-    description: "近一年收录的文献，按期刊影响因子加权与 AI 评分排出最前沿的研究：顶刊与大子刊浮在前面。",
+    description: "近五年收录、期刊影响因子大于 10 的文献，按期刊影响因子加权与 AI 评分排出最前沿的研究：顶刊与大子刊浮在前面，徽章只给 Nature/Science 级正刊。",
     path: "/hot",
     image: "/og/pages/hot.png",
   });
@@ -75,7 +75,7 @@ function PaperRow({ p, rank }: { p: PaperHeat; rank: number }) {
             {p.title}
           </IntentLink>
           {p.isTop && (
-            <Badge tone="hot" title="发表在影响因子 ≥ 10 的期刊上">
+            <Badge tone="hot" title="Nature/Science 级的正刊（Nature、Science、Cell、NEJM、Lancet、BMJ 等）">
               顶刊
             </Badge>
           )}
@@ -101,6 +101,7 @@ function showMethod() {
 
 export default function HotPage() {
   const { hot } = useLoaderData<typeof loader>();
+  const total = hot.tracks.reduce((n, t) => n + t.count, 0);
   return (
     <div className="pb-10">
       <PhoneBar
@@ -108,7 +109,7 @@ export default function HotPage() {
         large
         sub={
           <>
-            近一年最前沿的 {hot.papers.length} 篇 · {hot.tracks.length} 条轨道
+            近五年精选 {total} 篇 · {hot.tracks.length} 条轨道
             {hot.computedAt && (
               <>
                 {" · "}
@@ -130,11 +131,11 @@ export default function HotPage() {
               <span className="absolute inline-flex size-full animate-ping rounded-full bg-hot opacity-30" />
               <span className="relative inline-flex size-2 rounded-full bg-hot" />
             </span>
-            近一年
+            近五年 · IF 大于 10
           </div>
           <h1 className="mt-1.5 text-[24px] font-bold leading-[1.3] tracking-[-0.01em] text-ink lg:text-[26px]">{withSubject("前沿榜")}</h1>
           <p className="mt-1.5 text-[13.5px] text-ink-3">
-            近一年收录 {hot.papers.length} 篇文献 · {hot.tracks.length} 条轨道 · 期刊质量加权排序
+            近五年收录 {total} 篇文献（期刊影响因子大于 10） · {hot.tracks.length} 条轨道 · 期刊质量加权排序
           </p>
         </div>
         {hot.computedAt && (
@@ -146,7 +147,7 @@ export default function HotPage() {
 
       {hot.tracks.length === 0 ? (
         <div className="card rounded-sheet">
-          <EmptyState title="近一年还没有收录">站点恢复收录后，这里会按轨道排出最前沿的研究。</EmptyState>
+          <EmptyState title="近五年还没有符合入选线的收录">站点收录到影响因子大于 10 的期刊文献后，这里会按轨道排出最前沿的研究。</EmptyState>
         </div>
       ) : (
         <section aria-label="轨道分组" className="grid grid-cols-1 gap-4 @[900px]:grid-cols-2 @[1300px]:grid-cols-3">
@@ -197,8 +198,8 @@ export default function HotPage() {
           </span>
         </summary>
         <div className="max-w-[760px] space-y-2 pb-2 pl-[21px] pt-2 leading-[1.75] text-ink-3">
-          <p>榜单看近一年收录、经过 AI 评分的全部文献，按「期刊影响因子加权 + 评分」排序：发表在高质量期刊上的研究浮在前面，顶刊（影响因子 ≥ 10）自动打上徽章。</p>
-          <p>评分反映证据强度、新颖性、相关度、影响与可执行性（五维加权），仅用于排序；期刊的分区与影响因子来自 JCR 2026（本站运营者自备的指标表），按期刊名匹配，未收录的期刊按 0 计。</p>
+          <p>榜单看近五年发表、且期刊影响因子大于 10 的全部收录（含回溯检索入库的文献），按「期刊影响因子加权 + 评分」排序：发表在更高影响力期刊上的研究浮在前面。顶刊徽章只标注 Nature/Science 级的正刊（Nature、Science、Cell、NEJM、Lancet、BMJ 等），Nature Communications 一类同门与子刊不标注。</p>
+          <p>评分反映证据强度、新颖性、相关度、影响与可执行性（五维加权），仅用于排序；期刊的分区与影响因子来自 JCR 2026（本站运营者自备的指标表），按期刊名匹配，表内查无的期刊无从判断，不入榜。</p>
           <p>只统计公开可见的收录；被下架或调整为仅摘要的条目会从榜单移除。每小时刷新一次。</p>
         </div>
       </details>

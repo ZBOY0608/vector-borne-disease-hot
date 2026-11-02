@@ -14,7 +14,7 @@ export interface JournalMetrics {
 let table: Map<string, JournalMetrics> | null = null;
 let loaded = false;
 
-const normalize = (name: string) => name.toLowerCase().replace(/[^a-z0-9]/g, "");
+export const normalizeJournalName = (name: string) => name.toLowerCase().replace(/[^a-z0-9]/g, "");
 
 /** One CSV line split on commas that are not inside double quotes. */
 function csvLine(line: string): string[] {
@@ -55,10 +55,10 @@ function load(): void {
     const value = header.indexOf("metric_value");
     const source = header.indexOf("metric_source");
     for (const row of metrics.slice(1)) {
-      if (row[j] && row[value]) map.set(normalize(row[j]), { impactFactor: row[value], quartile: null, source: row[source] || null });
+      if (row[j] && row[value]) map.set(normalizeJournalName(row[j]), { impactFactor: row[value], quartile: null, source: row[source] || null });
     }
     for (const row of readRows(path.join(dir, "journal_quartiles.csv")).slice(1)) {
-      const hit = map.get(normalize(row[0]));
+      const hit = map.get(normalizeJournalName(row[0]));
       if (hit && row[1]) { hit.quartile = row[1]; hit.source = hit.source || null; }
     }
     table = map;
@@ -71,7 +71,7 @@ function load(): void {
 export function journalMetricsFor(journal: string | null | undefined): JournalMetrics | null {
   load();
   if (!table || !journal) return null;
-  return table.get(normalize(journal)) ?? null;
+  return table.get(normalizeJournalName(journal)) ?? null;
 }
 
 /**
