@@ -38,6 +38,16 @@ export function dailyMetrics(main: EditionEntry[]) {
 
 type ReportKind = "daily" | "weekly" | "monthly";
 
+/**
+ * Daily keys whose windows can never receive judged content, so the scheduled run skips them instead
+ * of failing and retrying every half hour. 2026-11-01 and 2026-11-02: the host's proxy switched to
+ * TUN/fake-IP DNS and the SSRF guard blocked every overseas fetch until EGRESS_PROXY_URL was set late
+ * on 2026-11-03 — nothing was ingested or judged in these windows, and retro-pushed items would be
+ * branded backfill, which dailies exclude by design. 2026-11-03 stays live: its window runs to
+ * 2026-11-04 08:00 and covers the resumed pipeline's first hours.
+ */
+const KNOWN_INGEST_GAPS: ReadonlySet<string> = new Set(["2026-11-01", "2026-11-02"]);
+
 /** How many events an issue already published carries; nothing when it does not exist yet. */
 async function savedReport(kind: ReportKind, key: string) {
   const [row] = await sql<{ entries: number }[]>`
@@ -346,7 +356,7 @@ export async function composeDueReports(now = new Date(), limit = 8): Promise<{ 
     const have = new Set((await sql<{ key: string }[]>`SELECT key FROM reports WHERE kind = ${k.kind}`).map((r) => r.key));
     const first = [...have].sort()[0] ?? k.due;
     for (let key = first; key <= k.due; key = k.next(key)) {
-      if (have.has(key)) continue;
+      if (have.has(key) || (k.kind === "daily" && KNOWN_INGEST_GAPS.has(key))) continue;
       if (k.kind !== "daily" && (!firstDaily || k.end(key) < firstDaily)) continue;
       if (shutdownSignal.signal.aborted || generated.length >= limit) break kinds;
       try {
